@@ -108,7 +108,7 @@ Five representative decision tests were performed:
 Result: **5/5 decision tests passed.**
 
 ## Limitations
-## Limitations
+
 
 The current evaluation has several limitations:
 
@@ -122,15 +122,21 @@ The current evaluation has several limitations:
 
 ## Project Structure
 
+## Project Structure
+
 ```text
 HIVER/
 ├── data/
-│   ├── amazon_support.csv
-│   ├── amazon_conversations.csv
-│   ├── amazon_knowledge_base.csv
-│   ├── amazon_knowledge_base_clean.csv
 │   ├── amazon_golden_set.csv
-│   └── intent_test.csv
+│   ├── amazon_label_batch_2.csv
+│   ├── gemini_intent_results.csv
+│   ├── intent_failures.csv
+│   ├── intent_labeling_sample.csv
+│   ├── intent_test.csv
+│   ├── intent_train.csv
+│   ├── reply_eval_results.csv
+│   ├── reply_eval_sample.csv
+│   └── sample.csv
 │
 ├── src/
 │   ├── agent.py
@@ -146,16 +152,19 @@ HIVER/
 │   ├── reply_quality_eval.py
 │   ├── generate_reply_eval.py
 │   ├── batch_reply_eval.py
+│   ├── llm_judge_eval.py
 │   └── reply_quality_rubric.txt
 │
 ├── reports/
 │   ├── final_report.md
+│   ├── decision_log.txt
 │   ├── decision_test_results.txt
 │   ├── baseline_results.txt
 │   └── final_failure_analysis.txt
 │
+├── .gitignore
+├── requirements.txt
 └── README.md
-```
 
 ## Setup
 
