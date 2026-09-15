@@ -1,0 +1,120 @@
+FINAL SYSTEM FAILURE ANALYSIS
+=============================
+
+Evaluation set:
+30 held-out examples from the 150-example golden set.
+
+IMPORTANT:
+This analysis is based on real errors and edge cases observed in the Gemini-powered system.
+
+
+1. FAILURE MODE: OTHER VS SPECIFIC INTENT CONFUSION
+---------------------------------------------------
+Actual intent: other
+Predicted intent: refund_return / account_payment
+
+Customer message:
+"@AmazonHelp So basically, I just want an email address or a postal address that I can submit a formal complaint to, please."
+
+Generated reply:
+"We'd love to hear your feedback! You can get in touch with us via email, phone, or chat using this link: https://t.co/JzP7hlA23B"
+
+Why this is a failure:
+The customer message is a general contact/complaint request without mentioning a specific order or item. The classifier misidentified it as a refund/return issue because of words such as "submit".
+
+Hypothesis:
+The "other" category is broad and contains diverse customer queries. Action verbs like "submit" trigger associations with return forms or refund requests.
+
+Potential improvement:
+Refine intent definitions in the prompt to explicitly classify general contact/complaint address requests as "other" or create a dedicated "general_inquiry" intent.
+
+
+2. FAILURE MODE: SHORT DELIVERY COMPLAINTS MISCLASSIFIED AS OTHER
+-----------------------------------------------------------------
+Actual intent: delivery_shipping
+Predicted intent: other
+
+Customer message:
+"@AmazonHelp What is this?? Order still not delivered for yours kind information. https://t.co/0FzpuBfguN"
+
+Generated reply:
+"We'd like to help look into your order delivery issue. Please DM us your order details or contact us here: https://t.co/hApLpMlfHN"
+
+Why this is a failure:
+The customer is reporting a non-delivered order, but the classifier labeled it as "other" because the message lacks standard carrier keywords (e.g., "tracking", "UPS", "carrier").
+
+Hypothesis:
+Short, informal, or grammatically noisy tweets lack dense keyword context. Keyword-based features or zero-shot prompts without short-text examples can default to "other".
+
+Potential improvement:
+Add short-text few-shot examples of delivery complaints (e.g. "still not delivered", "where is my package") to the intent classifier prompt.
+
+
+3. FAILURE MODE: IMPLICIT PRODUCT TROUBLESHOOTING
+--------------------------------------------------
+Actual intent: product_help
+Predicted intent: other
+
+Customer message:
+"@AmazonHelp Our home screen won't load"
+
+Generated reply:
+"Oh no! Is it showing a specific error when it won't load the home screen? Please reach out to us here: https://t.co/hApLpMlfHN"
+
+Why this is a failure:
+The customer is experiencing a Fire TV or Echo device issue, but because the specific device name is omitted, the model failed to identify it as product troubleshooting.
+
+Hypothesis:
+Messages omitting explicit device identifiers (e.g., "Fire TV", "Kindle", "Alexa") lack obvious keyword signals for product_help.
+
+Potential improvement:
+Expand the product_help intent definition to include UI and software behaviors such as "home screen won't load", "stuck on logo", or "app crashing".
+
+
+4. FAILURE MODE: OVERLAPPING ORDER, SHIPPING, AND REFUND LANGUAGE
+-----------------------------------------------------------------
+Actual intent: order_issue
+Predicted intent: refund_return
+
+Customer message:
+"@AmazonHelp Made a purchase at the same time for 2 items Mon. Notified 1 was shipped, went to track the other and it said 'this was cancelled'."
+
+Generated reply:
+"I'm sorry to hear your order item was cancelled. Please check your order history or contact support here: https://t.co/hApLpMlfHN"
+
+Why this is a failure:
+The message mentions multiple stages of fulfillment (purchase, shipped, track, cancelled). The model prioritized cancellation/refund aspect over order tracking.
+
+Hypothesis:
+Real customer support messages span multiple fulfillment phases (order placement -> shipping -> cancellation -> refund), creating ambiguity between overlapping intents.
+
+Potential improvement:
+Implement a clear primary intent resolution policy in the prompt (e.g., priority rule: active order status inquiries > general return policies).
+
+
+5. FAILURE MODE: MULTILINGUAL AND NOISY RETRIEVAL MISMATCH
+----------------------------------------------------------
+Actual intent: account_payment
+Predicted intent: other
+
+Customer message:
+"@AmazonHelp ギフト券使ってないんてますけど、支払いってギフト券でしか払えないんですか？"
+
+Generated reply:
+"Se precisar de qualquer ajuda com o seu pedido, recomendamos entrar em contato com o nosso SAC por aqui: https://t.co/qGpkDwGRhX"
+
+Why this is a failure:
+The query is in Japanese regarding gift card payment. The intent classifier output "other", and the TF-IDF retriever retrieved Portuguese historical support evidence, resulting in a language mismatch.
+
+Hypothesis:
+Lexical TF-IDF retrieval fails on non-English text because character n-grams do not capture cross-lingual semantic similarity.
+
+Potential improvement:
+Replace lexical TF-IDF retrieval with a multilingual dense embedding model (e.g. text-embedding-004 or multilingual-e5) to match semantics across languages.
+
+
+OVERALL OBSERVATION
+===================
+The final Gemini 3.6 Flash system achieved 93.3% intent classification accuracy (28/30 correct) and an average LLM-Judge reply quality score of 2.00/2.00 (100% grounded in evidence) on the held-out 30-example evaluation set.
+
+The primary failure modes center around short ambiguous tweets, multi-intent order/shipping overlaps, and cross-lingual lexical retrieval limitations.

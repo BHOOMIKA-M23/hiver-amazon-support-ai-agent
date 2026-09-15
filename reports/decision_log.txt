@@ -1,0 +1,238 @@
+HIVER AMAZONHELP AI SUPPORT AGENT
+DECISION LOG
+============
+
+Decision 1: Select AmazonHelp as the target brand
+
+Decision:
+Selected AmazonHelp from the Twitter customer-support dataset.
+
+Why:
+AmazonHelp has a large number of customer-support interactions covering
+repeatable issues such as delivery, orders, refunds, accounts, products,
+and Prime. This provides enough examples for both intent classification
+and historically grounded reply generation.
+
+---
+
+Decision 2: Use customer messages as the primary intent signal
+
+Decision:
+The customer's incoming message is the primary evidence for determining
+intent. Amazon's historical reply is supporting evidence only.
+
+Why:
+Using the support reply to determine the customer's intent could create
+label leakage and make evaluation unrealistically easy.
+
+---
+
+Decision 3: Use seven support intents
+
+Decision:
+Created the following seven-intent taxonomy:
+
+1. delivery_shipping
+2. order_issue
+3. refund_return
+4. account_payment
+5. product_help
+6. prime_issue
+7. other
+
+Why:
+The categories cover the major recurring AmazonHelp support problems while
+remaining small enough for reliable classification.
+
+---
+
+Decision 4: Keep product_help broad in the first version
+
+Decision:
+Combined product troubleshooting, configuration, how-to questions, and
+broken/defective product issues into product_help.
+
+Why:
+Creating many narrow product categories would require substantially more
+manual annotation and would increase confusion between small classes.
+
+---
+
+Decision 5: Use a manually labelled golden set
+
+Decision:
+Created 150 manually labelled Amazon customer-support examples.
+
+Why:
+The original dataset does not provide the task-specific intent labels
+required for evaluation. A manually labelled set provides a reproducible
+evaluation target.
+
+---
+
+Decision 6: Use a fixed 80/20 train-test split
+
+Decision:
+Split the 150 labelled examples into 120 training examples and 30 held-out
+test examples using stratification and random_state=42.
+
+Why:
+A fixed split makes the experiment reproducible while preserving the
+relative distribution of intents as much as possible.
+
+---
+
+Decision 7: Compare against a trivial majority-class baseline
+
+Decision:
+Used the most common intent, other, as a majority-class baseline.
+
+Why:
+A trivial baseline establishes how much value the actual classifier adds
+over simply predicting the most frequent category.
+
+Result:
+Accuracy = 43.3%.
+
+---
+
+Decision 8: Use TF-IDF + Logistic Regression as the classical ML baseline
+
+Decision:
+Built a TF-IDF + Logistic Regression classifier.
+
+Why:
+This is a simple, fast, interpretable text-classification baseline and
+provides a meaningful comparison against the LLM classifier.
+
+Result:
+Accuracy = 46.7%
+Macro F1 = 0.21
+Weighted F1 = 0.40
+
+---
+
+Decision 9: Use TF-IDF retrieval for historical support evidence
+
+Decision:
+Built a TF-IDF retriever over historical customer-message/reply pairs.
+
+Why:
+TF-IDF provides a lightweight and reproducible way to retrieve messages
+that are lexically similar to a new customer request without requiring
+embedding infrastructure.
+
+Knowledge base:
+77,003 cleaned historical pairs.
+
+---
+
+Decision 10: Remove golden-set examples from the evaluation knowledge base
+
+Decision:
+Removed customer messages overlapping with the golden evaluation examples
+before final evaluation.
+
+Why:
+If an evaluation message appears in the retrieval knowledge base, the
+system may retrieve the exact historical example. This would create
+retrieval leakage and make reply evaluation overly optimistic.
+
+Clean evaluation knowledge base:
+76,902 pairs.
+
+---
+
+Decision 11: Compare TF-IDF classification with Gemini
+
+Decision:
+Tested Gemini 3.6 Flash as an alternative intent classifier using the same
+30-example held-out test set.
+
+Why:
+The TF-IDF + Logistic Regression baseline achieved only 46.7% accuracy
+and 0.21 macro F1. Failure analysis showed problems with short messages,
+overlapping intents, multilingual messages, and limited training examples.
+
+Initial Result:
+An earlier Gemini run achieved 96.7% accuracy and 0.94 macro F1.
+However, this was an earlier run and was not retained as the final
+reproducible result.
+
+Interpretation:
+The initial experiment suggested that Gemini had substantially stronger
+semantic understanding than the lexical TF-IDF baseline on this small
+held-out set.
+
+---
+
+Decision 12: Use the latest reproducible Gemini result
+
+Decision:
+Re-evaluated Gemini after rebuilding the conversation data and
+leakage-free knowledge base.
+
+Final result:
+- Accuracy: 93.3%
+- Macro F1: 0.88
+- Weighted F1: 0.93
+- Correct predictions: 28/30
+
+Why:
+The final report should use the latest reproducible experiment rather than
+an earlier stronger run.
+
+Observed errors:
+- Prime/delivery language overlap
+- Order/shipping language overlap
+
+Limitation:
+The test set contains only 30 examples.
+
+---
+
+Decision 13: Ground generated replies in historical evidence
+
+Decision:
+The Gemini reply generator receives the customer message together with
+retrieved historical Amazon support examples.
+
+Why:
+The assignment requires replies to be grounded in how the brand
+historically resolved similar issues. The prompt also instructs Gemini
+not to invent policies, actions, URLs, delivery dates, refunds, or
+troubleshooting steps unsupported by the evidence.
+
+---
+
+Decision 14: Use conservative escalation rules
+
+Decision:
+Escalate when:
+1. Evidence similarity is below 0.45.
+2. The customer explicitly requests a human/agent/representative.
+3. The intent is account_payment.
+
+Otherwise, the system auto-handles when relevant evidence is available.
+
+Why:
+Weak evidence increases the risk of hallucinated replies. Account/payment
+issues can be sensitive, and explicit human requests should be respected.
+
+Validation:
+5/5 representative decision tests passed.
+
+---
+
+Decision 15: Do not report Gemini's placeholder confidence as a real probability
+
+Decision:
+Removed the previous placeholder confidence value from the classifier.
+
+Why:
+Gemini's response did not provide a calibrated probability. Reporting a
+fixed value such as 0.90 would create a misleading impression of model
+certainty.
+
+The final system therefore does not treat this value as calibrated
+confidence.

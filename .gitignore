@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+data/twcs/
+data/archive.zip
+data/amazon_support.csv
+data/amazon_conversations.csv
+data/amazon_reply_pairs.csv
+data/amazon_knowledge_base.csv
+data/amazon_knowledge_base_clean.csv
+data/amazon_working.csv
+data/amazon_clean.csv
+.env
+*.env
+reports/final_report_backup.md

@@ -1,0 +1,48 @@
+DECISION LOGIC TEST RESULTS
+===========================
+
+The escalation decision system was tested using five representative scenarios.
+
+Test 1: Strong refund case
+Customer: I want to return this item and get a refund.
+Expected: auto_handle
+Actual: auto_handle
+Result: PASS
+Reason: Relevant historical evidence is available and no escalation trigger was detected.
+
+Test 2: Weak evidence
+Customer: I have a problem with something I ordered.
+Expected: escalate
+Actual: escalate
+Result: PASS
+Reason: Insufficient historical evidence for a confident reply.
+
+Test 3: Explicit human request
+Customer: My package is late. I want to speak to a human agent.
+Expected: escalate
+Actual: escalate
+Result: PASS
+Reason: Customer explicitly requested human support.
+
+Test 4: Account/payment issue
+Customer: There is an unexpected charge on my account.
+Expected: escalate
+Actual: escalate
+Result: PASS
+Reason: Account or payment issues require human review.
+
+Test 5: Strong delivery case
+Customer: My package says delivered but I never received it.
+Expected: auto_handle
+Actual: auto_handle
+Result: PASS
+Reason: Relevant historical evidence is available and no escalation trigger was detected.
+
+Summary:
+5 out of 5 decision tests passed.
+
+The tests confirm that the system can:
+- Auto-handle cases with relevant historical evidence.
+- Escalate when historical evidence is weak.
+- Escalate when the customer explicitly requests human support.
+- Escalate account and payment issues for human review.

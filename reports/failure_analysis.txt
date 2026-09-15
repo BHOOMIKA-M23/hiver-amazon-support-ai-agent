@@ -1,0 +1,96 @@
+TOP 5 FAILURE MODES
+===================
+
+1. OTHER vs SPECIFIC INTENT CONFUSION
+
+Example:
+Actual: other
+Predicted: refund_return
+
+Message:
+"So basically, I just want an email address or a postal address that I can submit a formal complaint to, please."
+
+Hypothesis:
+The classifier relies heavily on words such as "submit" and may associate complaint-related language with refund/return examples. The "other" category is also broad and contains many different types of messages.
+
+Potential improvement:
+Add more diverse examples to the other category and use stronger intent definitions or a semantic classifier.
+
+
+2. DELIVERY ISSUES MISCLASSIFIED AS OTHER
+
+Example:
+Actual: delivery_shipping
+Predicted: other
+
+Message:
+"What is this?? Order still not delivered for yours kind information."
+
+Hypothesis:
+Short delivery complaints contain limited vocabulary. When messages do not contain strong words such as "package", "tracking", or "delivery", the TF-IDF model may fail to recognize the delivery intent.
+
+Potential improvement:
+Add more short delivery examples and use semantic embeddings instead of relying only on word overlap.
+
+
+3. PRODUCT TROUBLESHOOTING MISCLASSIFIED
+
+Example:
+Actual: product_help
+Predicted: other
+
+Message:
+"Our home screen won't load"
+
+Hypothesis:
+Very short troubleshooting messages contain few distinctive terms. The model does not have enough lexical evidence to identify product_help reliably.
+
+Potential improvement:
+Add more product/device troubleshooting examples and use an embedding-based classifier or LLM classification.
+
+
+4. OVERLAPPING ORDER, DELIVERY AND REFUND LANGUAGE
+
+Example:
+Actual: order_issue
+Predicted: refund_return
+
+Message:
+"Made a purchase at the same time for 2 items Mon. Notified 1 was shipped, went to track the other and it said 'this was cancelled'."
+
+Hypothesis:
+Customer-support intents naturally overlap. Words such as order, shipped, cancelled, payment and return can appear across multiple categories.
+
+Potential improvement:
+Define clearer boundary rules and use semantic classification with examples for each intent.
+
+
+5. PRIME AND MULTILINGUAL MESSAGES ARE HARD TO CLASSIFY
+
+Example 1:
+Actual: prime_issue
+Predicted: other
+
+Message:
+"None of those solutions worked, unfortunately. And now none of the Prime movies have video."
+
+Example 2:
+Actual: account_payment
+Predicted: other
+
+Message:
+"ギフト券使ってないんてますけど、支払いってギフト券でしか払えないんですか？"
+
+Hypothesis:
+The training set contains relatively few Prime and multilingual examples. The TF-IDF model therefore has limited vocabulary coverage for these cases.
+
+Potential improvement:
+Add more Prime and multilingual training examples and use a multilingual semantic model or LLM-based classification.
+
+
+OVERALL OBSERVATION
+===================
+
+The classifier achieved 46.7% accuracy and 0.21 macro F1 on the 30-example test set.
+
+The main limitation is the small manually labelled dataset of 150 examples. Several intents have very few examples, while "other" is the largest category. TF-IDF + Logistic Regression is therefore sensitive to vocabulary overlap and struggles with short, ambiguous, multilingual, and overlapping customer-support messages.

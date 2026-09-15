@@ -1,0 +1,92 @@
+HIVER AMAZON SUPPORT AGENT
+REPLY QUALITY EVALUATION RUBRIC
+
+Each generated reply is evaluated on the following dimensions.
+
+1. REPLY QUALITY — HUMAN SCORE
+
+Score 2 = Good
+- Directly addresses the customer's request.
+- Helpful and understandable.
+- Professional and concise.
+- Appropriate for Amazon customer support.
+
+Score 1 = Partially good
+- Somewhat addresses the request.
+- Useful but incomplete, vague, or slightly awkward.
+- Does not contain a major harmful error.
+
+Score 0 = Poor
+- Does not address the customer's request.
+- Gives incorrect or unsupported information.
+- Is misleading, unsafe, or clearly unhelpful.
+
+2. EVIDENCE SUPPORT — HUMAN LABEL
+
+supported
+- The reply is supported by the retrieved historical examples.
+- The reply does not introduce important unsupported facts.
+
+partially_supported
+- Most of the reply is supported, but some detail is not clearly supported.
+
+unsupported
+- The reply contains an important claim, instruction, policy, URL,
+  or action that is not supported by the historical evidence.
+
+3. LLM-AS-JUDGE
+
+The judge receives:
+- Customer message
+- Retrieved historical evidence
+- Generated reply
+
+The judge must independently score:
+
+reply_quality:
+0 = Poor
+1 = Partially good
+2 = Good
+
+evidence_supported:
+supported
+partially_supported
+unsupported
+
+The judge must also provide a short reason.
+
+4. HUMAN VS JUDGE AGREEMENT
+
+For reply quality:
+- Exact agreement = human score equals judge score.
+- Report agreement percentage.
+
+For evidence support:
+- Exact agreement = human evidence label equals judge evidence label.
+- Report agreement percentage.
+
+5. IMPORTANT EVALUATION RULE
+
+The judge must evaluate whether the generated reply is actually supported
+by the retrieved evidence, not whether the reply merely sounds plausible.
+
+A fluent answer containing invented information must receive a poor
+evidence-support rating.
+
+6. HUMAN REVIEW PROCEDURE
+
+For each example:
+1. Read the customer message.
+2. Read the historical evidence.
+3. Read the generated reply.
+4. Assign human reply-quality score.
+5. Assign human evidence-support label.
+6. Do not change the labels after seeing the judge's prediction.
+
+7. LIMITATION
+
+The evaluation uses a small held-out set of 30 examples.
+
+Therefore, reply-quality and judge-agreement results should be reported
+as evidence on this evaluation sample, not as a claim about all Amazon
+customer-support conversations.
