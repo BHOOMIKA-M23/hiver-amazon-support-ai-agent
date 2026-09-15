@@ -120,7 +120,6 @@ The current evaluation has several limitations:
 - Human review of 30 generated replies rated 70.0% as Good and 30.0% as Partially Good.
 - The LLM judge rated all 30 replies as Good, so automated judge results should be interpreted cautiously.
 
-## Project Structure
 
 ## Project Structure
 
